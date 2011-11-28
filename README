@@ -1,0 +1,34 @@
+CrowdBot Readme
+
+CrowdBot makes an Arduino connected to your computer available for programming over the internet.
+
+Use cases:
+- A teacher can set up an Arduino board for multiple students to share and run their programs
+- Students in online classes can learn to program on an Arduino before investing in the full kit
+- A public art project, similar to the programmable lights being produced for the Oakland Bay Bridge http://www.ledinside.com/node/14357
+- A Kickstarter project could demo their working Arduino shield to encourage users to build one into their own projects
+- A university-level class could observe the LEDs lit by several different programs and work to determine which logic gates are used
+
+Three main components:
+1) appengine-server
+--- a simple page to watch a live stream of the Arduino and (under development) datastream as well
+--- a simple form and database program to store users' sketches
+--- an API for the CrowdBot host
+2) crowdbot-host
+--- a script which periodically scans for new sketches on the appengine-server
+--- BAT scripts to run and upload Arduino sketches from a command line
+3) the Arduino Uno with an ATMEGA328P
+--- hook your computer up to a cool project!
+
+Configuring crowdbot-host:
+The original program: http://www.arduino.cc/playground/Code/WindowsCommandLine
+Users' updates: http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1168127321;start=all
+Update for the Uno: http://www.andrewvos.com/2011/04/29/how-to-upload-code-to-an-arduino-uno-from-the-command-line/
+
+Wish list:
+- Updated README with instructions on environment variables
+- Livestream data from the Arduino alongside the video
+- Send more information back to the host machine about the Arduino program, to provide better feedback on each sketch
+- Use the YouTube Data API to upload and annotate a video of each program running
+- E-mail or Tweet a complete package (video and data) to the programmer of the sketch
+- Documentation for Mac and Linux host machines
