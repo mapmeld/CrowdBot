@@ -34,7 +34,7 @@ class CrowdBotIn(webapp.RequestHandler):
 			<h3>Name your Sketch</h3>
 			<input name="sketchname"/>
 			<h3>Enter Sketch</h3>
-			<textarea name="mysketch"></textarea>
+			<textarea name="mysketch" width="400" height="400" rows="10" cols="40"></textarea>
 			<br/>
 			<input type="submit" value="Send Sketch"/>
 		</form>
