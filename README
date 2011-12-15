@@ -20,7 +20,16 @@ Three main components:
 3) the Arduino Uno with an ATMEGA328P
 --- hook your computer up to a cool project!
 
-Configuring crowdbot-host:
+Configuring crowdbot-host / abuild.bat error:
+In Windows, open the Control Panel and search for system environment variables.  Add these for an Arduino Uno with an ATMEGA328 processor:
+ARDUINO_BURNRATE	115200
+ARDUINO_COMPORT		COM2	(depends on your system - open the Arduino program and use the drop-down to determine COM port - reassign if number is COM10 or higher)
+ARDUINO_FCPU		16000000
+ARDUINO_MCU			atmega328p
+ARDUINO_PATH		C:\Users\ndoiron\Arduino\  (depends on your system)
+ARDUINO_PROGRAMMER	stk500
+
+These values come from piecing together information from multiple sources.  If you are not using an Arduino Uno with an ATMEGA328 processor, consult these pages:
 The original program: http://www.arduino.cc/playground/Code/WindowsCommandLine
 Users' updates: http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1168127321;start=all
 Update for the Uno: http://www.andrewvos.com/2011/04/29/how-to-upload-code-to-an-arduino-uno-from-the-command-line/

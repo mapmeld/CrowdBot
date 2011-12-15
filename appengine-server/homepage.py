@@ -4,11 +4,11 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
 
-# user views of CrowdBot
+# main views of CrowdBot
 class CrowdBotIn(webapp.RequestHandler):
   def get(self):
 	if(self.request.get('screen') == 'watch'):
-		# live stream homepage
+		# watching the livestream
 		self.response.out.write('''<!DOCTYPE html>
 <html>
 	<head>
@@ -21,20 +21,21 @@ class CrowdBotIn(webapp.RequestHandler):
 		</td><td>
 			<div>
 				<p>Programs are submitted online through <a href="/crowdbot?screen=send" target="_blank">this form</a>.</p>
-				<iframe src="/crowdbot/out?status=live" width="200" height="400" scrolling="no" frameborder="0" style="border: 0px none transparent;"></iframe>
+				<iframe src="/crowdbot/out?status=live" width="300" height="400" scrolling="yes" frameborder="0" style="border: 0px none transparent;"></iframe>
 			</div>
 		</td></tr></table>
 	</body>
 </html>''')
 	else:
-		# form to submit sketches
+		# submitting a sketch
 		self.response.out.write('''<!DOCTYPE html>
 <html>
 	<head>
 		<title>CrowdBot Test Entry</title>
 		<script type="text/javascript">
 function writeSample(){
-	document.getElementById("sketchplace").value = "/*\\n  Blink\\n  Turns on an LED on for two seconds, then off for five seconds, repeatedly.\\n */\\nvoid setup() {\\n  pinMode(13, OUTPUT);\\n}\\nvoid loop() {\\n  digitalWrite(13, HIGH);\\n  delay(2000);\\n  digitalWrite(13, LOW);\\n  delay(5000);\\n}";
+	//document.getElementById("sketchplace").value = "/*\\n  Blink\\n  Turns on an LED on for two seconds, then off for five seconds, repeatedly.\\n */\\nvoid setup() {\\n  pinMode(13, OUTPUT);\\n}\\nvoid loop() {\\n  digitalWrite(13, HIGH);\\n  delay(2000);\\n  digitalWrite(13, LOW);\\n  delay(5000);\\n}";
+	document.getElementById("sketchplace").value = "/*\\n  Blink\\n  Turns on blue and yellow LEDs on for four seconds, then off for two seconds, repeatedly.\\n  pin 2 is blue\\n  pin 4 is green\\n  activating #2 and #4 together makes one aqua-green light\\n  pin 6 is yellow\\n  pin 13 is indicator on Arduino\\n */\\nvoid setup() {\\n  pinMode(2, OUTPUT);\\n  pinMode(6, OUTPUT);\\n}\\nvoid loop() {\\n  digitalWrite(2, HIGH);\\n  digitalWrite(6, HIGH);\\n  delay(4000);\\n  digitalWrite(2, LOW);\\n  digitalWrite(6, LOW);\\n  delay(2000);\\n}";
 }
 		</script>
 	</head>
@@ -60,7 +61,7 @@ function writeSample(){
 </html>''')
 
   def post(self):
-	# store a sketch and redirect to the livestream page
+	# accept a new sketch from the form
 	sketch = CrowdBotProgram()
 	sketch.programname = self.request.get('sketchname')
 	sketch.username = self.request.get('identify')
@@ -69,7 +70,7 @@ function writeSample(){
 	sketch.put()
 	self.redirect('/crowdbot?screen=watch')
 
-# API requests from the crowdbot-host machine
+# API requests
 class CrowdBotOut(webapp.RequestHandler):
   def get(self):
 	if(self.request.get('status') == 'live'):
@@ -86,6 +87,7 @@ html, body{
 		</style>
 	</head>
 	<body>\n''')
+		# find the last sketch to be downloaded to the board - print program name and source code
 		livesketch = CrowdBotProgram().gql("WHERE hasRun = 'True' ORDER BY uploaded DESC").get()
 		if(livesketch is not None):
 			self.response.out.write(cgi.escape(livesketch.programname) + '<hr/>')
@@ -97,14 +99,20 @@ html, body{
 	</body>
 </html>''')
 	else:
-		# simply output an un-run sketch ( will be updated to include more information about user, sketch name )
+		# output the earliest-submitted pending sketch ( will be updated to include more information about user, sketch name )
 		sketch = CrowdBotProgram().gql("WHERE hasRun = 'False' ORDER BY uploaded ASC").get()
-		self.response.out.write(sketch.programtext)
-		livesketch = CrowdBotProgram().gql("WHERE hasRun = 'True' ORDER BY uploaded DESC").get()
-		if(livesketch is not None):
-			livesketch.delete()
-		sketch.hasRun = 'True'
-		sketch.put()
+		if(sketch is not None):
+			self.response.out.write(sketch.programtext)
+			# move pending sketch to live
+			sketch.hasRun = 'True'
+			sketch.put()
+			# move livesketch to 'complete'
+			livesketch = CrowdBotProgram().gql("WHERE hasRun = 'True' ORDER BY uploaded DESC").get()
+			livesketch.hasRun = 'complete'
+			livesketch.put()
+		else:
+			# there are no pending programs
+			self.response.out.write('no new program')
 
 # current data model for user-submitted sketches
 class CrowdBotProgram(db.Model):
