@@ -79,15 +79,22 @@ class CrowdBotOut(webapp.RequestHandler):
 	<head>
 		<meta http-equiv="refresh" content="180"/>
 		<title>Current CrowdBot Program</title>
+		<style type="text/css">
+html, body{
+	font-family: courier;
+}
+		</style>
 	</head>
 	<body>\n''')
 		livesketch = CrowdBotProgram().gql("WHERE hasRun = 'True' ORDER BY uploaded DESC").get()
 		if(livesketch is not None):
 			self.response.out.write(cgi.escape(livesketch.programname) + '<hr/>')
-			self.response.out.write(cgi.escape(livesketch.programtext.replace('\n','<br/>')))
+			self.response.out.write(cgi.escape(livesketch.programtext.replace('\n','<br/>')).replace('&lt;br/&gt;','<br/>').replace(' ','&nbsp;'))
 		else:
 			self.response.out.write('No program loaded\n')
-		self.response.out.write('''	</body>
+		self.response.out.write('''		<br/>
+		<input type="button" value="Refresh" onclick="location.reload(true)"/>
+	</body>
 </html>''')
 	else:
 		# simply output an un-run sketch ( will be updated to include more information about user, sketch name )
