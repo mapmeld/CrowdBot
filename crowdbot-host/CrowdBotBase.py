@@ -10,10 +10,10 @@ while loops < 1:
     program = urllib.urlopen('http://mapmeld.appspot.com/crowdbot/out').read()
     #print program
     myfilename = 'runitnow'
-    saveprogram = open('C:/Users/Doiron/arduino-0022/' + myfilename + '.pde','w')
+    saveprogram = open('C:/Users/ndoiron/arduino-1.0/' + myfilename + '.pde','w')
     saveprogram.write(program)
     saveprogram.close()
-    print os.chdir('C:/Users/Doiron/arduino-0022/')
+    print os.chdir('C:/Users/ndoiron/arduino-1.0/')
     print os.system('abuild.bat -v -u ' + myfilename + '.pde')
     
     #time.sleep(600)  # 10 minutes
