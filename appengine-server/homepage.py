@@ -3,12 +3,15 @@ import cgi
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
+from google.appengine.api.urlfetch import POST
+import crowdbotconfig
+import twitteroauth
 
 # main views of CrowdBot
 class CrowdBotIn(webapp.RequestHandler):
   def get(self):
 	if(self.request.get('screen') == 'watch'):
-		# watching the livestream
+		# livestream of Arduino
 		self.response.out.write('''<!DOCTYPE html>
 <html>
 	<head>
@@ -27,7 +30,7 @@ class CrowdBotIn(webapp.RequestHandler):
 	</body>
 </html>''')
 	else:
-		# submitting a sketch
+		# submit a sketch
 		self.response.out.write('''<!DOCTYPE html>
 <html>
 	<head>
@@ -101,15 +104,37 @@ html, body{
 	else:
 		# output the earliest-submitted pending sketch ( will be updated to include more information about user, sketch name )
 		sketch = CrowdBotProgram().gql("WHERE hasRun = 'False' ORDER BY uploaded ASC").get()
+		livesketch = CrowdBotProgram().gql("WHERE hasRun = 'True' ORDER BY uploaded DESC").get()
 		if(sketch is not None):
 			self.response.out.write(sketch.programtext)
 			# move pending sketch to live
 			sketch.hasRun = 'True'
 			sketch.put()
-			# move livesketch to 'complete'
-			livesketch = CrowdBotProgram().gql("WHERE hasRun = 'True' ORDER BY uploaded DESC").get()
-			livesketch.hasRun = 'complete'
-			livesketch.put()
+			if(livesketch is not None):
+				# move live sketch to 'Complete'
+				livesketch.hasRun = 'Complete'
+				livesketch.put()
+
+			# send Tweets to authors of latest and next sketch, if Twitter was provided
+			# based on Anil Shanbhag's Twitter Bot: http://anilattech.wordpress.com/2011/10/29/making-a-twitter-bot-using-appengine/
+			if(sketch.username.find('@') == 0):
+
+				finished_format = "%s: your sketch has finished running on our #CrowdBot"
+				starting_format = "%s: your sketch will run on our #CrowdBot for the next 3+ minutes"
+
+				# oauth client released by Mike Knapp (see twitteroauth.py for more information)
+				client = twitteroauth.TwitterClient(crowdbotconfig.consumer_key, crowdbotconfig.consumer_secret, crowdbotconfig.callback_url)
+
+				additional_params = {
+					"status": starting_format % (sketch.username)
+				}
+				result = client.make_request(
+					"http://twitter.com/statuses/update.json",
+					token=crowdbotconfig.access_token,
+					secret=crowdbotconfig.access_token_secret,
+					additional_params=additional_params,
+					method=POST)
+				#logging.info(result.content)
 		else:
 			# there are no pending programs
 			self.response.out.write('no new program')
