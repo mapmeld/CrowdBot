@@ -37,8 +37,8 @@ class CrowdBotIn(webapp.RequestHandler):
 		<title>CrowdBot Test Entry</title>
 		<script type="text/javascript">
 function writeSample(){
-	//document.getElementById("sketchplace").value = "/*\\n  Blink\\n  Turns on an LED on for two seconds, then off for five seconds, repeatedly.\\n */\\nvoid setup() {\\n  pinMode(13, OUTPUT);\\n}\\nvoid loop() {\\n  digitalWrite(13, HIGH);\\n  delay(2000);\\n  digitalWrite(13, LOW);\\n  delay(5000);\\n}";
-	document.getElementById("sketchplace").value = "/*\\n  Blink\\n  Turns on blue and yellow LEDs on for four seconds, then off for two seconds, repeatedly.\\n  pin 2 is blue\\n  pin 4 is green\\n  activating #2 and #4 together makes one aqua-green light\\n  pin 6 is yellow\\n  pin 13 is indicator on Arduino\\n */\\nvoid setup() {\\n  pinMode(2, OUTPUT);\\n  pinMode(6, OUTPUT);\\n}\\nvoid loop() {\\n  digitalWrite(2, HIGH);\\n  digitalWrite(6, HIGH);\\n  delay(4000);\\n  digitalWrite(2, LOW);\\n  digitalWrite(6, LOW);\\n  delay(2000);\\n}";
+	//document.getElementById("sketchplace").value = "/*\\n  Blink\\n  Turns on an LED on for two seconds, then off for five seconds, repeatedly.\\n */\\nvoid setup() {\\n  pinMode(13, OUTPUT);\\n}\\nvoid loop() {\\n  digitalWrite(13, HIGH);\\n  delay(2000);\\n  digitalWrite(13, LOW);\\n  delay(5000);\\n  /* loop() repeats */\\n}";
+	document.getElementById("sketchplace").value = "/*\\n  Blink\\n  Turns blue and yellow LEDs on and off, repeatedly.\\n  pin 2 is blue\\n  pin 4 is green\\n  activating 2 and 4 together makes aqua-green\\n  pin 6 is yellow\\n  pin 13 is orange indicator on Arduino\\n */\\nvoid setup() {\\n  /* at start, prepare LED pins */\\n  pinMode(2, OUTPUT);\\n  pinMode(4, OUTPUT);\\n  pinMode(6, OUTPUT);\\n  pinMode(13, OUTPUT);\\n}\\nvoid loop() {\\n  /* program a light show here! */\\n  digitalWrite(2, HIGH);\\n  digitalWrite(6, HIGH);\\n  /* wait 4 seconds with those settings */\\n  delay(4000);\\n  digitalWrite(2, LOW);\\n  digitalWrite(6, LOW);\\n  /* wait 2 seconds with those settings */\\n  delay(2000);\\n  /* loop() repeats */\\n}";
 }
 		</script>
 	</head>
@@ -46,9 +46,9 @@ function writeSample(){
 		<h1>CrowdBot Test Entry</h1>
 		<table><tr><td>
 			<form accept-charset="UTF-8" action="/crowdbot" method="post" style="border-right:1px solid silver;margin-right:15px;padding-right:15px;">
-				<h3>Your e-mail address <strike>or Twitter</strike> for us to send the video</h3>
+				<h3>Twitter (@mapmeld) or e-mail (you@example.com)</h3>
 				<input name="identify" width="300"/>
-				<h3>Name your Sketch</h3>
+				<h3>Tweetable Name for your Sketch</h3>
 				<input name="sketchname" width="300"/>
 				<h3>Enter Sketch or <a href='#' onclick='writeSample()'>Sample</a></h3>
 				<textarea id="sketchplace" name="mysketch" width="400" height="600" rows="18" cols="60"></textarea>
@@ -119,14 +119,14 @@ html, body{
 			# based on Anil Shanbhag's Twitter Bot: http://anilattech.wordpress.com/2011/10/29/making-a-twitter-bot-using-appengine/
 			if(sketch.username.find('@') == 0):
 
-				finished_format = "%s: your sketch has finished running on our #CrowdBot"
-				starting_format = "%s: your sketch will run on our #CrowdBot for the next 3+ minutes"
+				finished_format = "%s: your sketch '%s' has finished running on #CrowdBot"
+				starting_format = "%s: your sketch '%s' will run on #CrowdBot for the next 2+ minutes"
 
 				# oauth client released by Mike Knapp (see twitteroauth.py for more information)
 				client = twitteroauth.TwitterClient(crowdbotconfig.consumer_key, crowdbotconfig.consumer_secret, crowdbotconfig.callback_url)
 
 				additional_params = {
-					"status": starting_format % (sketch.username)
+					"status": starting_format % (sketch.username, sketch.programname.replace('@','').replace('#','').replace('/',''))
 				}
 				result = client.make_request(
 					"http://twitter.com/statuses/update.json",
@@ -134,7 +134,7 @@ html, body{
 					secret=crowdbotconfig.access_token_secret,
 					additional_params=additional_params,
 					method=POST)
-				#logging.info(result.content)
+				logging.info(result.content)
 		else:
 			# there are no pending programs
 			self.response.out.write('no new program')
