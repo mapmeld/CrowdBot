@@ -24,9 +24,11 @@ Three main components:
 Configuring crowdbot-host:
 1) Install PySerial ( pyserial.sourceforge.net ) by running python appengine-host/pyserial-2.6/setup.py install
 
-2) Set appengine-host/CrowdBotBase.py to point to the correct USB port and directories
+2) Set crowdbot-host/CrowdBotBase.py to point to the correct USB port, directories, and AppEngine URL
 
-3) In Windows, open the Control Panel and search for system environment variables. These parameters are recommended for an Arduino Uno with an ATMEGA328 processor:
+3) Add Twitter App information and your admin e-mail address to appengine-server/crowdbotconfig.py
+
+4) In Windows, open the Control Panel and search for system environment variables. These parameters are recommended for an Arduino Uno with an ATMEGA328 processor:
 ARDUINO_BURNRATE	115200
 ARDUINO_COMPORT		COM2	(depends on your system - open the Arduino program and use the drop-down to determine COM port - reassign if number is COM10 or higher)
 ARDUINO_FCPU		16000000
