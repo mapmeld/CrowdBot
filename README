@@ -11,17 +11,22 @@ Use cases:
 
 Three main components:
 1) appengine-server
---- a simple page to watch a live stream of the Arduino and (under development) datastream as well
+--- a simple page to watch a live stream and datastream of the Arduino
 --- a simple form and database program to store users' sketches
 --- an API for the CrowdBot host
 2) crowdbot-host
 --- a script which periodically scans for new sketches on the appengine-server
 --- BAT scripts to run and upload Arduino sketches from a command line
+--- PySerial library to livestream data from the Arduino
 3) the Arduino Uno with an ATMEGA328P
 --- hook your computer up to a cool project!
 
-Configuring crowdbot-host / abuild.bat error:
-In Windows, open the Control Panel and search for system environment variables.  Add these for an Arduino Uno with an ATMEGA328 processor:
+Configuring crowdbot-host:
+1) Install PySerial ( pyserial.sourceforge.net ) by running python appengine-host/pyserial-2.6/setup.py install
+
+2) Set appengine-host/CrowdBotBase.py to point to the correct USB port and directories
+
+3) In Windows, open the Control Panel and search for system environment variables. These parameters are recommended for an Arduino Uno with an ATMEGA328 processor:
 ARDUINO_BURNRATE	115200
 ARDUINO_COMPORT		COM2	(depends on your system - open the Arduino program and use the drop-down to determine COM port - reassign if number is COM10 or higher)
 ARDUINO_FCPU		16000000
