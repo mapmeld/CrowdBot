@@ -42,9 +42,6 @@ Users' updates: http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1168127321;start
 Update for the Uno: http://www.andrewvos.com/2011/04/29/how-to-upload-code-to-an-arduino-uno-from-the-command-line/
 
 Wish list:
-- Updated README with instructions on environment variables
-- Livestream data from the Arduino alongside the video
-- Send more information back to the host machine about the Arduino program, to provide better feedback on each sketch
 - Use the YouTube Data API to upload and annotate a video of each program running
-- E-mail or Tweet a complete package (video and data) to the programmer of the sketch
+- E-mail or Tweet video to the programmer of the sketch
 - Documentation for Mac and Linux host machines
