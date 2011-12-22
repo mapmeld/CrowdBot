@@ -1,0 +1,13 @@
+application: APPENGINE_APP_ID
+version: 1
+runtime: python
+api_version: 1
+
+handlers:
+
+- url: /crowdbot.*
+  script: homepage.py
+
+- url: /(.*\.(gif|png|jpg|ico|js|html|rb|css|txt|xml|json|svg|xo|zip|kml|py|kmz|xol|htm|JPG))
+  static_files: static/\1
+  upload: static/(.*\.(gif|png|jpg|ico|js|html|rb|css|txt|xml|json|svg|xo|zip|kml|py|kmz|xol|htm|JPG))

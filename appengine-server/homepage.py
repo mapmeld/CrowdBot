@@ -222,48 +222,46 @@ Data returned by your sketch is stored at http://mapmeld.com/crowdbot/out?get=fe
 class CrowdBotOut(webapp.RequestHandler):
   def get(self):
 	if(self.request.get('get') == 'livecode'):
-		token = channel.create_channel('crowdbot')
+		# token = channel.create_channel('crowdbot')
 		# print out a mini-page about the current program, which refreshes every few minutes by default or by Channel API
+		livesketch = CrowdBotProgram().gql("WHERE hasRun = 'True' ORDER BY uploaded DESC").get()
+		sketchtitle = ""
+		if(livesketch is not None):
+			sketchtitle = cgi.escape( livesketch.programname )
 		self.response.out.write('''<!DOCTYPE html>
 <html>
 	<head>
-		<!-- <meta http-equiv="refresh" content="180"/> -->
+		<meta http-equiv="refresh" content="60"/>
 		<title>Current CrowdBot Program</title>
-		<script type="text/javascript" src="/_ah/channel/jsapi"></script>
-		<script type="text/javascript">
-function init(){
-	channel = new goog.appengine.Channel("''' + token + '''");
-	socket = channel.open();
-	socket.onmessage = function(msg){
-		document.body.innerHTML = msg.data;
-	};
-}
-function onOpened(){}
-function onMessage(){}
-function onError(){}
-function onClose(){}
-		</script>
-		<style type="text/css">
-html, body{
-	font-family: courier;
-}
-		</style>
+		<script type="text/javascript" src="/shCore.js"></script>
+		<script type="text/javascript" src="/shBrushCpp.js"></script>
+		<link rel='stylesheet' type='text/css' href='/shCore.css'/>
+		<link rel='stylesheet' type='text/css' href='/shThemeDefault.css'/>
 	</head>
-	<body onload="init()">
-		<!--<input type="button" value="Refresh" onclick="location.reload(true)"/><br/>-->\n''')
+	<body>
+		<span id="codetitle" style="font-family:courier;">''' + sketchtitle + '''</span>
+		<input type="button" value="Refresh" onclick="window.location.reload()"/>
+		<hr/>
+		<pre class="brush: cpp">\n''')
 		# find the last sketch to be downloaded to the board - print program name and source code
-		livesketch = CrowdBotProgram().gql("WHERE hasRun = 'True' ORDER BY uploaded DESC").get()
 		if(livesketch is not None):
-			self.response.out.write(cgi.escape(livesketch.programname) + '<hr/>')
-			self.response.out.write(cgi.escape(livesketch.programtext.replace('\n','<br/>')).replace('&lt;br/&gt;','<br/>').replace(' ','&nbsp;'))
+			#self.response.out.write(cgi.escape(livesketch.programname) + '<hr/>')
+			#self.response.out.write(cgi.escape(livesketch.programtext.replace('\n','<br/>')).replace('&lt;br/&gt;','<br/>').replace(' ','&nbsp;'))
+			self.response.out.write(cgi.escape(livesketch.programtext))
 		else:
 			self.response.out.write('No program loaded\n')
-		self.response.out.write('''	</body>
+		self.response.out.write('''		</pre>
+		<script type="text/javascript">
+			SyntaxHighlighter.all()
+		</script>
+	</body>
 </html>''')
 	elif(self.request.get('get') == 'livedata'):
-		# display any data relayed by the CrowdBot host
-		token = channel.create_channel('crowdbot_data')
-		self.response.out.write('''<!DOCTYPE html>
+		# display any data relayed by the CrowdBot host		
+		if(1 == 0):
+		#try:
+			token = channel.create_channel('crowdbot_data')
+			self.response.out.write('''<!DOCTYPE html>
 <html>
 	<head>
 		<title>CrowdBot Data Stream</title>
@@ -289,10 +287,6 @@ function init(){
 		}
 	};
 }
-function onOpened(){}
-function onMessage(){}
-function onError(){}
-function onClose(){}
 function $(id){
 	return document.getElementById(id);
 }
@@ -309,12 +303,27 @@ html, body{
 		</div>
 	</body>
 </html>''')
+		#except:
+		else:
+			# over channel connection limit (100 connections in 24 hours)
+			# show feed of last program to send data
+			lastread = CrowdBotProgram().gql("WHERE hasRun = 'Complete' ORDER BY uploaded DESC")
+			found = 0
+			for program in lastread:
+				if(program.feed is not None):
+					if(len(str(program.feed)) > 3):
+						found = 1
+						self.redirect('/crowdbot/out?get=feed&id=' + str(program.key().id()))
+						break
+			if(found == 0):
+				self.response.out.write('Over channel limit and no archived data')
+
 	elif(self.request.get('get') == 'current'):
 		# send the current program to the function given by jsonp 
 		self.response.out.write(cgi.escape(self.request.get('jsonp')) + '("')
 		livesketch = CrowdBotProgram().gql("WHERE hasRun = 'True' ORDER BY uploaded DESC").get()
 		if(livesketch is not None):
-			self.response.out.write(livesketch.programtext.replace('"','\\"').replace('\n','|~|').replace('\n',''))
+			self.response.out.write(livesketch.programtext.replace('"','\\"').replace('\r','|~|').replace('\n','|~|'))
 		self.response.out.write('")')
 	elif(self.request.get('get') == 'feed'):
 		sketch = CrowdBotProgram.get_by_id(long(self.request.get('id')))
@@ -347,7 +356,7 @@ html, body{
 				livesketch.put()
 			
 			# use Channel API to update live code and data views
-			channel.send_message('crowdbot', cgi.escape(sketch.programname) + '<hr/>' + cgi.escape(sketch.programtext.replace('\n','<br/>')).replace('&lt;br/&gt;','<br/>').replace(' ','&nbsp;'))
+			#channel.send_message('crowdbot', cgi.escape(sketch.programname) + '<hr/>' + cgi.escape(sketch.programtext))
 			channel.send_message('crowdbot_data', 'CLEAR-DATA')
 
 			# send Tweets to authors of latest and next sketch, if Twitter was provided
