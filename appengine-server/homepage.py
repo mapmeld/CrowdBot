@@ -258,8 +258,7 @@ class CrowdBotOut(webapp.RequestHandler):
 </html>''')
 	elif(self.request.get('get') == 'livedata'):
 		# display any data relayed by the CrowdBot host		
-		if(1 == 0):
-		#try:
+		try:
 			token = channel.create_channel('crowdbot_data')
 			self.response.out.write('''<!DOCTYPE html>
 <html>
@@ -303,8 +302,7 @@ html, body{
 		</div>
 	</body>
 </html>''')
-		#except:
-		else:
+		except:
 			# over channel connection limit (100 connections in 24 hours)
 			# show feed of last program to send data
 			lastread = CrowdBotProgram().gql("WHERE hasRun = 'Complete' ORDER BY uploaded DESC")
