@@ -34,6 +34,11 @@ while loops < 125:
 		# code from http://rowley.zendesk.com/entries/46177-undefined-reference-to-cxa-pure-virtual-error-message
 		if((program.find('Serial.begin') > -1) and (program.find('void __cxa_pure_virtual()') == -1)):
 			program = program + '\n\nextern "C" void __cxa_pure_virtual(){\n  while (1);\n}'
+
+		# do not run programs which write to EEPROM - these can overwrite or even break the Arduino's memory
+		if(program.find('EEPROM') > -1):
+			continue
+
 		# create a file to store the program
 		myfilename = 'runitnow'
 		saveprogram = open('C:/Users/ndoiron/Documents/Arduino/' + myfilename + '.pde','w')
