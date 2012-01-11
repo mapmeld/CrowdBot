@@ -6,7 +6,7 @@
 import time, urllib, os
 # experimental data livestream
 # install PySerial from http://pyserial.sourceforge.net
-# also configure serial.Serial line to appropriate Arduino COM port
+# also configure serial.Serial line to appropriate Arduino USB port
 import datetime, serial
 
 # configure app instance for your installation
@@ -39,13 +39,20 @@ while loops < 125:
 		if(program.find('EEPROM') > -1):
 			continue
 
-		# create a file to store the program
+		# create a folder to store the program
 		myfilename = 'runitnow'
-		saveprogram = open('C:/Users/ndoiron/Documents/Arduino/' + myfilename + '.pde','w')
+		if(os.path.exists('/users/ndoiron404/Documents/CrowdBot/' + myfilename) == False):
+			os.mkdir('/users/ndoiron404/Documents/CrowdBot/' + myfilename)
+		os.chdir('/users/ndoiron404/Documents/CrowdBot')
+		os.system('cp SConstruct ' + myfilename + '/')
+		saveprogram = open('/users/ndoiron404/Documents/CrowdBot/' + myfilename + '/' + myfilename + '.pde','w')
+		program = '#include <WProgram.h>\n' + program
 		saveprogram.write(program)
 		saveprogram.close()
-		os.chdir('C:/Users/ndoiron/Documents/Arduino/')
-		print os.system('abuild.bat -v -u ' + myfilename + '.pde')
+		os.chdir('/users/ndoiron404/Documents/CrowdBot/' + myfilename)
+		response = os.system('scons ARDUINO_PORT=/dev/tty.usbmodemfd121 upload')
+		# response could feasibly be checked for compilation / upload errors
+		print response
 		msstart = datetime.datetime.now()
 		#time.sleep(120)
 		# see if user has asked to check serial port
@@ -53,7 +60,7 @@ while loops < 125:
 			# init data archive
 			outbox = ""
 			# open serial port - configure to your computer!
-			ser = serial.Serial('COM2', 9600, timeout=0.5)
+			ser = serial.Serial('/dev/tty.usbmodemfd121', 9600, timeout=0.5)
 			# attempt to read serial while program runs for the next two minutes
 			while( (datetime.datetime.now() - msstart).seconds < 120 ):
 				line = ser.readline().replace('\r','').replace('\n','')

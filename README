@@ -16,19 +16,21 @@ Three main components:
 --- an API for the CrowdBot host
 2) crowdbot-host
 --- a script which periodically scans for new sketches on the appengine-server
---- BAT scripts to run and upload Arduino sketches from a command line
+--- scripts to compile and upload Arduino sketches from a command line
 --- PySerial library to livestream data from the Arduino
 3) the Arduino Uno with an ATMEGA328P
---- hook your computer up to a cool project!
+--- hook your Arduino up to a cool project!
 
-Configuring crowdbot-host:
-1) Install PySerial ( pyserial.sourceforge.net ) by running python appengine-host/pyserial-2.6/setup.py install
+Configuring CrowdBot on Windows:
+1) Download and install an older version of Arduino (v20 confirmed working) and Python (2.6 or 2.7 recommended)
 
-2) Set crowdbot-host/CrowdBotBase.py to point to the correct USB port, directories, and AppEngine URL
+2) Install PySerial ( pyserial.sourceforge.net ) by running python appengine-host/pyserial-2.6/setup.py install
 
-3) Add Twitter App information and your admin e-mail address to appengine-server/crowdbotconfig.py
+3) Set crowdbot-host/CrowdBotBase.py to point to the correct USB port, directories, and AppEngine URL
 
-4) In Windows, open the Control Panel and search for system environment variables. These parameters are recommended for an Arduino Uno with an ATMEGA328 processor:
+4) Add Twitter App information and your admin e-mail address to appengine-server/crowdbotconfig.py
+
+5) Open the Control Panel and search for system environment variables. These parameters are recommended for an Arduino Uno with an ATMEGA328 processor:
 ARDUINO_BURNRATE	115200
 ARDUINO_COMPORT		COM2	(depends on your system - open the Arduino program and use the drop-down to determine COM port - reassign if number is COM10 or higher)
 ARDUINO_FCPU		16000000
@@ -41,7 +43,24 @@ The original program: http://www.arduino.cc/playground/Code/WindowsCommandLine
 Users' updates: http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1168127321;start=all
 Update for the Uno: http://www.andrewvos.com/2011/04/29/how-to-upload-code-to-an-arduino-uno-from-the-command-line/
 
+Configuring CrowdBot on Mac OSX:
+1) Download and install an older version of Arduino (v20 confirmed working) and Python (2.6 or 2.7 recommended)
+
+2) Install Xcode from Apple's developer site. You will need an Apple developer account and an iTunes account (both are free, neither require a credit card)
+
+3) Download scons from http://www.scons.org/ and run sudo python setup.py inside its directory
+
+4) Add two lines to SConstruct based on your Arduino (these are for Uno ATMEGA328P):
+F_CPU = '16000000' after F_CPU = ARGUMENTS...
+UPLOAD_SPEED = '115200' after UPLOAD_SPEED = getBoardConf...
+
+5) Use git to retrieve two files from arscons http://code.google.com/p/arscons/source/checkout and place them in your crowdbot-host folder (this may be included in the repo)
+
+6) Set crowdbot-host/MacCrowdBot.py to point to your USB port, directories, and AppEngine URL
+
+7) Add Twitter App information and your admin e-mail address to appengine-server/crowdbotconfig.py
+
 Wish list:
 - Use the YouTube Data API to upload and annotate a video of each program running
 - E-mail or Tweet video to the programmer of the sketch
-- Documentation for Mac and Linux host machines
+- Documentation for Linux host machines
