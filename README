@@ -50,11 +50,11 @@ Configuring CrowdBot on Mac OSX:
 
 3) Download scons from http://www.scons.org/ and run sudo python setup.py inside its directory
 
-4) Add two lines to SConstruct based on your Arduino (these are for Uno ATMEGA328P):
+4) Use git to download arscons http://code.google.com/p/arscons/source/checkout and place all its files in your Documents/CrowdBot directory
+
+5) Add two lines to arscons's file named SConstruct based on your Arduino (these are for Uno ATMEGA328P):
 F_CPU = '16000000' after F_CPU = ARGUMENTS...
 UPLOAD_SPEED = '115200' after UPLOAD_SPEED = getBoardConf...
-
-5) Use git to retrieve two files from arscons http://code.google.com/p/arscons/source/checkout and place them in your crowdbot-host folder (this may be included in the repo)
 
 6) Set crowdbot-host/MacCrowdBot.py to point to your USB port, directories, and AppEngine URL
 
